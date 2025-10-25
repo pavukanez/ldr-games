@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LDR Games 💕
 
-## Getting Started
+A mobile-friendly webapp for long-distance couples to play two-player games together in real-time. No login required - just share a unique session link!
 
-First, run the development server:
+## Features
+
+- 🚢 **Battleship** - Classic naval warfare game with enhanced features:
+  - 🎲 **Random Ship Placement** - Ships are automatically positioned for quick gameplay
+  - 🎨 **Pastel Color Theme** - Soft, gentle colors for a pleasant gaming experience
+  - 💥 **Explosion Animations** - Visual effects when ships are destroyed
+  - 📊 **Ship Tracking** - Real-time tracking of destroyed enemy ships
+- 📱 **Mobile-first design** - Optimized for phones and tablets
+- ⚡ **Real-time gameplay** - Powered by Supabase Realtime
+- 🔗 **Easy sharing** - Copy and share session links
+- 💕 **Couple-friendly** - Beautiful, minimalist design
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 with App Router + TailwindCSS
+- **Backend**: Supabase (Postgres + Realtime)
+- **Hosting**: Vercel (frontend) + Supabase (data)
+
+## Setup Instructions
+
+### 1. Clone and Install Dependencies
+
+```bash
+git clone <your-repo-url>
+cd ldr-games
+npm install
+```
+
+### 2. Set up Supabase
+
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to Settings > API to get your project URL and anon key
+3. Run the SQL schema from `supabase-schema.sql` in your Supabase SQL editor
+4. Enable Realtime for the `game_sessions` table in the Database > Replication section
+
+### 3. Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add the same environment variables in Vercel's dashboard
+4. Deploy!
 
-## Learn More
+## How to Play
 
-To learn more about Next.js, take a look at the following resources:
+1. **Create a Game**: Click "Create Game" on the home page
+2. **Share the Link**: Copy the session link and send it to your partner
+3. **Join the Game**: Your partner clicks the link to join
+4. **Play Battleship**: Take turns firing shots at each other's ships
+5. **Win**: First to sink all opponent's ships wins!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Game Rules
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Battleship
+- Each player has a 10×10 grid
+- Ships are randomly placed (5 ships: Carrier, Battleship, Cruiser, Submarine, Destroyer)
+- Players take turns firing shots
+- Hit = red square with explosion emoji
+- Miss = gray square with water drop emoji
+- Game ends when one player sinks all opponent's ships
 
-## Deploy on Vercel
+## Database Schema
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The app uses a single `game_sessions` table with the following structure:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `id`: Unique session identifier
+- `game_type`: Type of game (currently 'battleship')
+- `status`: 'waiting', 'active', or 'finished'
+- `current_player`: Which player's turn it is (1 or 2)
+- `player1_board` / `player2_board`: JSON stringified game boards
+- `player1_ships` / `player2_ships`: JSON stringified ship positions
+- `moves`: JSON array of all moves made
+- `winner`: Player number who won (1 or 2)
+
+## Contributing
+
+This is a fun project for couples! Feel free to:
+- Add new games (Tic-tac-toe, Connect 4, etc.)
+- Improve the UI/UX
+- Add sound effects
+- Enhance mobile experience
+
+## License
+
+MIT License - Feel free to use this for your own couple's game night! 💕
