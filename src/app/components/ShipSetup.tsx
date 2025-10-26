@@ -9,6 +9,7 @@ interface ShipSetupProps {
   onShipRemoved: (size: number) => boolean
   onShipRotated: (size: number) => boolean
   onSetupComplete: () => void
+  playerNickname?: string
 }
 
 interface DraggedShip {
@@ -19,7 +20,7 @@ interface DraggedShip {
   horizontal: boolean
 }
 
-export default function ShipSetup({ game, onShipPlaced, onShipRemoved, onShipRotated, onSetupComplete }: ShipSetupProps) {
+export default function ShipSetup({ game, onShipPlaced, onShipRemoved, onShipRotated, onSetupComplete, playerNickname }: ShipSetupProps) {
   const [draggedShip, setDraggedShip] = useState<DraggedShip | null>(null)
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null)
   const [selectedShip, setSelectedShip] = useState<number | null>(null)
@@ -29,12 +30,12 @@ export default function ShipSetup({ game, onShipPlaced, onShipRemoved, onShipRot
 
   const getShipColor = (size: number) => {
     const index = SHIP_SIZES.indexOf(size)
-    return index >= 0 ? SHIP_COLORS[index] : 'bg-gray-500'
+    return index >= 0 ? SHIP_COLORS[index] : 'bg-gray-200'
   }
 
   const getShipBorderColor = (size: number) => {
     const index = SHIP_SIZES.indexOf(size)
-    return index >= 0 ? SHIP_BORDER_COLORS[index] : 'border-gray-600'
+    return index >= 0 ? SHIP_BORDER_COLORS[index] : 'border-gray-300'
   }
 
   const getShipBySize = (size: number) => {
@@ -177,6 +178,16 @@ export default function ShipSetup({ game, onShipPlaced, onShipRemoved, onShipRot
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          Ship Placement
+        </h2>
+        <p className="text-gray-600">
+          {playerNickname ? `${playerNickname}, ` : ''}Place your ships on the grid below
+        </p>
+      </div>
+
       {/* Ship Selection */}
       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Place Your Ships</h3>
@@ -232,7 +243,7 @@ export default function ShipSetup({ game, onShipPlaced, onShipRemoved, onShipRot
               const cellState = getCellState(row, col)
               const { type, ship } = cellState
               
-              let cellClasses = 'w-8 h-8 rounded border-2 transition-all duration-200 '
+              let cellClasses = 'w-8 h-8 rounded-xl border-2 transition-all duration-200 '
               let cellContent = ''
               
               if (type === 'ship' && ship) {

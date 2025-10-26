@@ -4,11 +4,13 @@ A mobile-friendly webapp for long-distance couples to play two-player games toge
 
 ## Features
 
-- 🚢 **Battleship** - Classic naval warfare game with enhanced features:
-  - 🎲 **Random Ship Placement** - Ships are automatically positioned for quick gameplay
-  - 🎨 **Pastel Color Theme** - Soft, gentle colors for a pleasant gaming experience
-  - 💥 **Explosion Animations** - Visual effects when ships are destroyed
-  - 📊 **Ship Tracking** - Real-time tracking of destroyed enemy ships
+- 🎮 **Multi-Game Platform** - A collection of games designed for long-distance couples:
+  - 🚢 **Battleship** - Classic naval warfare with random ship placement and explosion animations
+  - ⭕ **Tic-Tac-Toe** - Simple 3x3 grid game (coming soon)
+  - 🔴 **Connect 4** - Drop discs to connect four in a row (coming soon)
+  - ♟️ **Chess** - Classic strategy game (coming soon)
+  - 🔴 **Checkers** - Jump and capture pieces (coming soon)
+  - 🐍 **Snake** - Control the snake and avoid obstacles (coming soon)
 - 📱 **Mobile-first design** - Optimized for phones and tablets
 - ⚡ **Real-time gameplay** - Powered by Supabase Realtime
 - 🔗 **Easy sharing** - Copy and share session links

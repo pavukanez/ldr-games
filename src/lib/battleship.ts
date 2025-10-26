@@ -6,15 +6,15 @@ export const SHIP_NAMES = ['Carrier', 'Battleship', 'Cruiser', 'Submarine', 'Des
 export const SHIP_COLORS = [
   'bg-pink-200',     // Carrier (5)
   'bg-blue-200',     // Battleship (4)
-  'bg-green-200',    // Cruiser (3)
-  'bg-yellow-200',   // Submarine (3)
+  'bg-emerald-200',    // Cruiser (3)
+  'bg-red-200',    // Submarine (3)
   'bg-purple-200'    // Destroyer (2)
 ]
 export const SHIP_BORDER_COLORS = [
   'border-pink-300',     // Carrier
   'border-blue-300',    // Battleship
-  'border-green-300',   // Cruiser
-  'border-yellow-300',  // Submarine
+  'border-emerald-300',   // Cruiser
+  'border-red-300',   // Submarine
   'border-purple-300'   // Destroyer
 ]
 

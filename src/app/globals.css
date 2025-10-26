@@ -123,3 +123,52 @@ body {
 .game-cell {
   border-radius: 0.75rem !important;
 }
+
+/* Hit explosion animations */
+@keyframes hit-explosion-pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes hit-explosion-debris {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(180deg); opacity: 0; }
+}
+
+.hit-explosion-container {
+  animation: hit-explosion-pulse 0.6s ease-out forwards;
+}
+
+.hit-explosion-container.large {
+  animation: hit-explosion-pulse 1.2s ease-out forwards;
+}
+
+/* Landing page animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s ease-in-out infinite;
+}

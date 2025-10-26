@@ -6,7 +6,7 @@ import { supabase, GameSession } from '@/lib/supabase'
 import { BattleshipGame, BOARD_SIZE, SHIP_COLORS, SHIP_BORDER_COLORS } from '@/lib/battleship'
 import { getGameSession, updateGameSession, copyToClipboard } from '@/lib/game-utils'
 import ShipTracker from '@/app/components/ShipTracker'
-import Explosion from '@/app/components/Explosion'
+import HitExplosion from '@/app/components/HitExplosion'
 
 export default function GamePage() {
   const params = useParams()
@@ -21,6 +21,7 @@ export default function GamePage() {
   const [linkCopied, setLinkCopied] = useState(false)
   const [showExplosion, setShowExplosion] = useState(false)
   const [lastDestroyedShip, setLastDestroyedShip] = useState<string | null>(null)
+  const [hitExplosion, setHitExplosion] = useState<{ show: boolean; size: 'small' | 'large' }>({ show: false, size: 'small' })
 
   useEffect(() => {
     if (sessionId) {
@@ -61,18 +62,36 @@ export default function GamePage() {
 
       setSession(gameSession)
 
-      // Determine player number
-      if (gameSession.status === 'waiting') {
+      // Generate or retrieve a unique browser ID
+      let browserId = localStorage.getItem('browser-id')
+      if (!browserId) {
+        browserId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+        localStorage.setItem('browser-id', browserId)
+      }
+
+      // Check if this browser has already claimed a player slot
+      if (gameSession.player1_id === browserId) {
         setPlayerNumber(1)
-      } else if (gameSession.status === 'active') {
-        // Check if this is player 1 or 2
-        // For simplicity, we'll use localStorage to track this
-        const storedPlayer = localStorage.getItem(`player-${sessionId}`)
-        if (storedPlayer) {
-          setPlayerNumber(parseInt(storedPlayer))
-        } else {
+        localStorage.setItem(`player-${sessionId}`, '1')
+      } else if (gameSession.player2_id === browserId) {
+        setPlayerNumber(2)
+        localStorage.setItem(`player-${sessionId}`, '2')
+      } else {
+        // This browser hasn't claimed a slot yet
+        // Try to claim player 1 first, then player 2
+        if (!gameSession.player1_id) {
+          // Claim player 1 slot
+          await updateGameSession(sessionId, { player1_id: browserId })
+          setPlayerNumber(1)
+          localStorage.setItem(`player-${sessionId}`, '1')
+        } else if (!gameSession.player2_id) {
+          // Claim player 2 slot
+          await updateGameSession(sessionId, { player2_id: browserId })
           setPlayerNumber(2)
           localStorage.setItem(`player-${sessionId}`, '2')
+        } else {
+          // Both slots are taken, this shouldn't happen
+          setError('Game is full')
         }
       }
 
@@ -90,14 +109,15 @@ export default function GamePage() {
     try {
       const success = await joinGameSession(sessionId)
       if (success) {
+        // Set as player 2
         setPlayerNumber(2)
         localStorage.setItem(`player-${sessionId}`, '2')
-        setSession(prev => prev ? { ...prev, status: 'active' } : null)
       }
     } catch (err) {
       console.error('Failed to join game:', err)
     }
   }
+
 
   const handleCopyLink = async () => {
     try {
@@ -126,6 +146,9 @@ export default function GamePage() {
       if (result.shipSunk) {
         setLastDestroyedShip(result.shipSunk)
         setShowExplosion(true)
+        setHitExplosion({ show: true, size: 'large' })
+      } else if (result.hit) {
+        setHitExplosion({ show: true, size: 'small' })
       }
 
       // Update the session
@@ -143,7 +166,8 @@ export default function GamePage() {
       const updates: Partial<GameSession> = {
         [boardKey]: game.toJSON(),
         moves: JSON.stringify(moves),
-        current_player: playerNumber === 1 ? 2 : 1
+        // Only switch players if it was a miss
+        current_player: result.hit ? playerNumber : (playerNumber === 1 ? 2 : 1)
       }
 
       if (result.gameOver) {
@@ -301,14 +325,7 @@ export default function GamePage() {
         {/* Game Status */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-6 shadow-lg">
           <div className="text-center">
-            {session.status === 'waiting' && (
-              <div>
-                <p className="text-lg text-gray-700 mb-2">Waiting for player 2 to join...</p>
-                <p className="text-sm text-gray-500">Share the link above with your partner!</p>
-              </div>
-            )}
-            
-            {session.status === 'active' && (
+            {session.status === 'active' && playerNumber && (
               <div>
                 <p className="text-lg text-gray-700 mb-2">
                   {session.current_player === playerNumber ? 'Your turn!' : 'Waiting for opponent...'}
@@ -330,30 +347,17 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Game Content */}
-        {session.status === 'waiting' && playerNumber === 1 && (
-          <div className="text-center">
-            <button
-              onClick={handleJoinGame}
-              className="bg-purple-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-purple-600 transition-colors"
-            >
-              Start Game
-            </button>
+        {/* Enemy Fleet Status */}
+        {session.status === 'active' && playerNumber && (
+          <div className="mb-6">
+            <ShipTracker
+              destroyedShips={getDestroyedEnemyShips()}
+              enemyShips={getEnemyShips()}
+            />
           </div>
         )}
 
-        {session.status === 'waiting' && playerNumber === 2 && (
-          <div className="text-center">
-            <button
-              onClick={handleJoinGame}
-              className="bg-pink-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-pink-600 transition-colors"
-            >
-              Join Game
-            </button>
-          </div>
-        )}
-
-        {/* Game Phase */}
+        {/* Game Boards */}
         {session.status === 'active' && playerNumber && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Player's Own Map */}
@@ -435,20 +439,11 @@ export default function GamePage() {
           </div>
         )}
 
-        {/* Ship Tracker */}
-        {session.status === 'active' && playerNumber && (
-          <div className="mt-6 max-w-4xl mx-auto">
-            <ShipTracker
-              destroyedShips={getDestroyedEnemyShips()}
-              enemyShips={getEnemyShips()}
-            />
-          </div>
-        )}
-
-        {/* Explosion Animation */}
-        <Explosion
-          isVisible={showExplosion}
-          onComplete={() => setShowExplosion(false)}
+        {/* Explosion Animations */}
+        <HitExplosion
+          isVisible={hitExplosion.show}
+          onComplete={() => setHitExplosion({ show: false, size: 'small' })}
+          size={hitExplosion.size}
         />
       </div>
     </div>

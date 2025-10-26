@@ -8,12 +8,13 @@ export function generateSessionId(): string {
 export async function createGameSession(gameType: 'battleship' = 'battleship'): Promise<string> {
   const sessionId = generateSessionId()
   
-  const game1 = new BattleshipGame() // Random placement
-  const game2 = new BattleshipGame() // Random placement
+  // Create games with random ship placement
+  const game1 = new BattleshipGame()
+  const game2 = new BattleshipGame()
   
   const session: Omit<GameSession, 'id' | 'created_at' | 'updated_at'> = {
     game_type: gameType,
-    status: 'waiting',
+    status: 'active',
     current_player: 1,
     player1_board: game1.toJSON(),
     player2_board: game2.toJSON(),
@@ -68,11 +69,7 @@ export async function joinGameSession(sessionId: string): Promise<boolean> {
     return false
   }
 
-  if (session.status === 'waiting') {
-    await updateGameSession(sessionId, { status: 'active' })
-    return true
-  }
-
+  // Game is always active, player can join immediately
   return session.status === 'active'
 }
 

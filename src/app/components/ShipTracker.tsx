@@ -9,112 +9,58 @@ interface ShipTrackerProps {
 }
 
 export default function ShipTracker({ destroyedShips, enemyShips }: ShipTrackerProps) {
-  const getShipColor = (size: number) => {
-    const index = SHIP_SIZES.indexOf(size)
-    return index >= 0 ? SHIP_COLORS[index] : 'bg-gray-500'
+  const getShipColor = (index: number) => {
+    return SHIP_COLORS[index] || 'bg-gray-500'
   }
 
-  const getShipBorderColor = (size: number) => {
-    const index = SHIP_SIZES.indexOf(size)
-    return index >= 0 ? SHIP_BORDER_COLORS[index] : 'border-gray-600'
+  const getShipBorderColor = (index: number) => {
+    return SHIP_BORDER_COLORS[index] || 'border-gray-600'
   }
 
-  const getShipStatus = (size: number) => {
-    const destroyedShip = destroyedShips.find(ship => ship.size === size)
-    const totalShip = enemyShips.find(ship => ship.size === size)
+  const getShipStatus = (index: number) => {
+    const size = SHIP_SIZES[index]
+    const shipId = `ship-${index}`
+    const destroyedShip = destroyedShips.find(ship => ship.id === shipId)
     
     if (destroyedShip) {
-      return { status: 'destroyed', ship: destroyedShip }
-    } else if (totalShip) {
-      return { status: 'active', ship: totalShip }
+      return 'destroyed'
     }
-    return { status: 'unknown', ship: null }
-  }
-
-  const getShipIcon = (size: number, status: string) => {
-    switch (status) {
-      case 'destroyed':
-        return '●'
-      case 'active':
-        return '○'
-      default:
-        return '?'
-    }
-  }
-
-  const getShipCardColor = (size: number, status: string) => {
-    const shipColor = getShipColor(size)
-    const borderColor = getShipBorderColor(size)
-    
-    switch (status) {
-      case 'destroyed':
-        return `${shipColor} ${borderColor} text-gray-700 opacity-60`
-      case 'active':
-        return `${shipColor} ${borderColor} text-gray-700`
-      default:
-        return 'bg-gray-100 border-gray-300 text-gray-600'
-    }
+    return 'active'
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-        Enemy Fleet Status
-      </h3>
-      
-      <div className="grid grid-cols-1 gap-2">
-        {SHIP_SIZES.map((size, index) => {
-          const { status, ship } = getShipStatus(size)
-          const shipName = SHIP_NAMES[index]
-          
-          return (
-            <div
-              key={size}
-              className={`p-3 rounded-xl border-2 transition-all ${getShipCardColor(size, status)}`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{getShipIcon(size, status)}</span>
-                  <div>
-                    <div className="font-medium">{shipName}</div>
-                    <div className="text-sm opacity-75">Size: {size}</div>
-                  </div>
-                </div>
-                
-                <div className="text-right">
-                  {status === 'destroyed' && (
-                    <div className="text-sm font-medium">
-                      <div className="text-red-600">DESTROYED</div>
-                      <div className="text-xs opacity-75">💥 Exploded!</div>
-                    </div>
-                  )}
-                  {status === 'active' && (
-                    <div className="text-sm font-medium">
-                      <div className="text-blue-600">ACTIVE</div>
-                      <div className="text-xs opacity-75">
-                        Hits: {ship?.positions.filter(pos => 
-                          // This would need to be calculated based on hit positions
-                          false // Placeholder - would need hit tracking
-                        ).length || 0}/{size}
-                      </div>
-                    </div>
-                  )}
-                  {status === 'unknown' && (
-                    <div className="text-sm font-medium text-gray-500">
-                      UNKNOWN
-                    </div>
-                  )}
-                </div>
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+      <div className="flex items-center justify-between gap-4">
+        <h3 className="text-sm font-semibold text-gray-700">Enemy Fleet:</h3>
+        
+        <div className="flex items-center gap-2">
+          {SHIP_SIZES.map((size, index) => {
+            const status = getShipStatus(index)
+            const shipColor = getShipColor(index)
+            const borderColor = getShipBorderColor(index)
+            const shipName = SHIP_NAMES[index]
+            
+            return (
+              <div
+                key={index}
+                className={`px-2 py-1 rounded-lg border transition-all ${
+                  status === 'destroyed' 
+                    ? 'bg-gray-300 border-gray-400 opacity-50' 
+                    : `${shipColor} ${borderColor}`
+                }`}
+                title={`${shipName} (${size})`}
+              >
+                <span className="text-xs font-medium">
+                  {status === 'destroyed' ? '✕' : '●'} {shipName[0]}
+                </span>
               </div>
-            </div>
-          )
-        })}
-      </div>
-      
-      <div className="mt-4 text-center text-sm text-gray-600">
-        <p>
-          Ships Destroyed: {destroyedShips.length}/{enemyShips.length}
-        </p>
+            )
+          })}
+        </div>
+        
+        <span className="text-xs text-gray-500">
+          {destroyedShips.length}/{enemyShips.length}
+        </span>
       </div>
     </div>
   )

@@ -11,7 +11,7 @@ export interface GameSession {
   created_at: string
   updated_at: string
   game_type: 'battleship'
-  status: 'waiting' | 'active' | 'finished'
+  status: 'active' | 'finished'
   current_player: number
   player1_board?: string // JSON stringified board state
   player2_board?: string
@@ -19,6 +19,8 @@ export interface GameSession {
   player2_ships?: string
   moves?: string // JSON stringified move history
   winner?: number
+  player1_id?: string
+  player2_id?: string
 }
 
 export interface BattleshipBoard {
