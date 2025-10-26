@@ -7,6 +7,7 @@ import { BattleshipGame, BOARD_SIZE, SHIP_COLORS, SHIP_BORDER_COLORS } from '@/l
 import { getGameSession, updateGameSession, copyToClipboard } from '@/lib/game-utils'
 import ShipTracker from '@/app/components/ShipTracker'
 import HitExplosion from '@/app/components/HitExplosion'
+import VictoryModal from '@/app/components/VictoryModal'
 
 export default function GamePage() {
   const params = useParams()
@@ -22,6 +23,7 @@ export default function GamePage() {
   const [showExplosion, setShowExplosion] = useState(false)
   const [lastDestroyedShip, setLastDestroyedShip] = useState<string | null>(null)
   const [hitExplosion, setHitExplosion] = useState<{ show: boolean; size: 'small' | 'large' }>({ show: false, size: 'small' })
+  const [showVictoryModal, setShowVictoryModal] = useState(false)
 
   useEffect(() => {
     if (sessionId) {
@@ -29,6 +31,13 @@ export default function GamePage() {
       loadGameSession()
     }
   }, [sessionId])
+
+  useEffect(() => {
+    // Show victory modal when game is finished
+    if (session?.status === 'finished' && playerNumber) {
+      setShowVictoryModal(true)
+    }
+  }, [session?.status, playerNumber])
 
   useEffect(() => {
     if (session) {
@@ -444,6 +453,13 @@ export default function GamePage() {
           isVisible={hitExplosion.show}
           onComplete={() => setHitExplosion({ show: false, size: 'small' })}
           size={hitExplosion.size}
+        />
+
+        {/* Victory Modal */}
+        <VictoryModal
+          isVisible={showVictoryModal}
+          isWinner={session?.winner === playerNumber}
+          onClose={() => setShowVictoryModal(false)}
         />
       </div>
     </div>
