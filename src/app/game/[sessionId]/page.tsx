@@ -69,6 +69,12 @@ export default function GamePage() {
         return
       }
 
+      // Redirect to appropriate game page based on game type
+      if (gameSession.game_type === 'tictactoe') {
+        router.push(`/tictactoe/${sessionId}`)
+        return
+      }
+
       setSession(gameSession)
 
       // Generate or retrieve a unique browser ID

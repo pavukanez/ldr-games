@@ -10,7 +10,7 @@ export interface GameSession {
   id: string
   created_at: string
   updated_at: string
-  game_type: 'battleship'
+  game_type: 'battleship' | 'tictactoe'
   status: 'active' | 'finished'
   current_player: number
   player1_board?: string // JSON stringified board state

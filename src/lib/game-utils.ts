@@ -1,12 +1,37 @@
 import { supabase, GameSession } from './supabase'
 import { BattleshipGame } from './battleship'
+import { TicTacToe } from './tictactoe'
 
 export function generateSessionId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
 
-export async function createGameSession(gameType: 'battleship' = 'battleship'): Promise<string> {
+export async function createGameSession(gameType: 'battleship' | 'tictactoe' = 'battleship'): Promise<string> {
   const sessionId = generateSessionId()
+  
+  if (gameType === 'tictactoe') {
+    // Create tic-tac-toe game
+    const game = new TicTacToe()
+    
+    const session: Omit<GameSession, 'id' | 'created_at' | 'updated_at'> = {
+      game_type: gameType,
+      status: 'active',
+      current_player: 1,
+      player1_board: game.toJSON(),
+      player2_board: game.toJSON(), // Same board for both players
+      moves: JSON.stringify([])
+    }
+
+    const { error } = await supabase
+      .from('game_sessions')
+      .insert({ id: sessionId, ...session })
+
+    if (error) {
+      throw new Error(`Failed to create game session: ${error.message}`)
+    }
+
+    return sessionId
+  }
   
   // Create games with random ship placement
   const game1 = new BattleshipGame()

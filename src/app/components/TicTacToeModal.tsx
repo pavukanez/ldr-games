@@ -2,18 +2,17 @@
 
 import { useEffect, useState } from 'react'
 
-interface VictoryModalProps {
+interface TicTacToeModalProps {
   isVisible: boolean
-  isWinner: boolean
-  isDraw?: boolean
+  result: 'win' | 'lose' | 'draw'
   onClose?: () => void
 }
 
-export default function VictoryModal({ isVisible, isWinner, isDraw = false, onClose }: VictoryModalProps) {
+export default function TicTacToeModal({ isVisible, result, onClose }: TicTacToeModalProps) {
   const [confetti, setConfetti] = useState<Array<{ id: number; left: number; delay: number; duration: number }>>([])
 
   useEffect(() => {
-    if (isVisible && isWinner && !isDraw) {
+    if (isVisible && result === 'win') {
       // Generate confetti pieces
       const pieces = Array.from({ length: 50 }, (_, i) => ({
         id: i,
@@ -23,7 +22,7 @@ export default function VictoryModal({ isVisible, isWinner, isDraw = false, onCl
       }))
       setConfetti(pieces)
     }
-  }, [isVisible, isWinner, isDraw])
+  }, [isVisible, result])
 
   if (!isVisible) return null
 
@@ -36,7 +35,7 @@ export default function VictoryModal({ isVisible, isWinner, isDraw = false, onCl
       />
 
       {/* Confetti */}
-      {isWinner && !isDraw && confetti.map((piece) => (
+      {result === 'win' && confetti.map((piece) => (
         <div
           key={piece.id}
           className="absolute top-0 w-2 h-2 animate-confetti"
@@ -44,7 +43,7 @@ export default function VictoryModal({ isVisible, isWinner, isDraw = false, onCl
             left: `${piece.left}%`,
             animationDelay: `${piece.delay}s`,
             animationDuration: `${piece.duration}s`,
-            backgroundColor: ['#fbbf24', '#f472b6', '#a78bfa', '#34d399', '#60a5fa'][piece.id % 5]
+            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'][piece.id % 5]
           }}
         />
       ))}
@@ -54,47 +53,47 @@ export default function VictoryModal({ isVisible, isWinner, isDraw = false, onCl
         <div className="text-center">
           {/* Icon */}
           <div className="mb-6">
-            {isDraw ? (
-              <div className="text-7xl">🤝</div>
-            ) : isWinner ? (
+            {result === 'win' ? (
               <div className="text-7xl animate-bounce">🎉</div>
-            ) : (
+            ) : result === 'lose' ? (
               <div className="text-7xl">😢</div>
+            ) : (
+              <div className="text-7xl">🤝</div>
             )}
           </div>
 
           {/* Message */}
           <h2 className="text-3xl font-bold mb-4">
-            {isDraw ? (
+            {result === 'win' ? (
+              <span className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
+                Victory!
+              </span>
+            ) : result === 'lose' ? (
+              <span className="text-gray-700">Game Over</span>
+            ) : (
               <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-transparent bg-clip-text">
                 Draw!
               </span>
-            ) : isWinner ? (
-              <span className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-transparent bg-clip-text">
-                Victory!
-              </span>
-            ) : (
-              <span className="text-gray-700">Game Over</span>
             )}
           </h2>
 
           <p className="text-lg text-gray-600 mb-6">
-            {isDraw 
-              ? "It's a tie! Both fleets were equally matched."
-              : isWinner 
-              ? "Congratulations! You've destroyed all enemy ships!"
-              : "Better luck next time! All your ships were destroyed."}
+            {result === 'win' 
+              ? "Congratulations! You got 5 in a row!"
+              : result === 'lose'
+              ? "Better luck next time! Your opponent got 5 in a row."
+              : "The board is full and no one got 5 in a row. It's a tie!"}
           </p>
 
           {/* Action Button */}
           <button
             onClick={() => window.location.href = '/'}
             className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all transform hover:scale-105 ${
-              isDraw
-                ? 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'
-                : isWinner 
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700'
-                : 'bg-gray-600 hover:bg-gray-700'
+              result === 'win' 
+                ? 'bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700'
+                : result === 'lose'
+                ? 'bg-gray-600 hover:bg-gray-700'
+                : 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'
             }`}
           >
             Return to Home

@@ -57,12 +57,12 @@ export default function LandingPage() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleCreateGame = async (gameType: string) => {
+  const handleCreateGame = async (gameType: 'battleship' | 'tictactoe') => {
     setCreatingGame(gameType)
     setError('')
 
     try {
-      const sessionId = await createGameSession('battleship')
+      const sessionId = await createGameSession(gameType)
       
       // Redirect to the game room
       router.push(`/game/${sessionId}`)
@@ -126,13 +126,13 @@ export default function LandingPage() {
           
           <GamePanel
             title="Tic-Tac-Toe"
-            description="Simple 3x3 grid game. Get three in a row to win!"
+            description="15x15 grid game. Get five in a row to win!"
             icon="⭕"
             color="bg-gradient-to-r from-green-500 to-green-600"
             hoverColor="from-green-600 to-green-700"
-            isAvailable={false}
-            onCreateGame={() => {}}
-            isCreating={false}
+            isAvailable={true}
+            onCreateGame={() => handleCreateGame('tictactoe')}
+            isCreating={creatingGame === 'tictactoe'}
           />
           
           <GamePanel
